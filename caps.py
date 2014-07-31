@@ -97,8 +97,20 @@ def draw_vector(vector, color):
     return v
 
 
-def draw_cap(vector, color, cap_angle, alpha=0.8):
-    cap = threed.make_cap(r=1.02*radius, cap_angle=cap_angle, direction=vector)
+def draw_cap(vector, color, cap_angle, alpha=0.8, func=None):
+    cap = threed.make_cap(
+        r=1.02*radius, cap_angle=cap_angle, direction=vector, func=func)
+
     mesh = mlab.mesh(*cap, color=color, opacity=alpha)
+
     return mesh
 
+
+def draw_star(vector, color, cap_angle=np.pi/32, freq=10, amplitude=0.3, alpha=0.8):
+
+    func = lambda x: 1 + amplitude * np.sin(freq * x)
+
+    mesh = draw_cap(
+        vector, color, np.pi/32, alpha=alpha, func=func)
+
+    return mesh
