@@ -2,6 +2,7 @@ import mytools.threed as threed
 import mayavi.mlab as mlab
 import numpy as np
 import nengo.utils.distributions as dists
+import ConfigParser
 
 radius = 1.0
 black = (0.0, 0.0, 0.0)
@@ -12,9 +13,33 @@ def normalize_color(c):
     return tuple(np.array(c) / 255.0)
 
 
+def read_config(config_name="/home/eric/mayavi-draws-nengo/common_values.conf"):
+    configParser = ConfigParser.SafeConfigParser()
+    configParser.readfp(open(config_name))
+
+    num_encoders = eval(configParser.get("Common", "num_encoders"))
+    threshold = eval(configParser.get("Common", "threshold"))
+    color1 = eval(configParser.get("Common", "color1"))
+    color2 = eval(configParser.get("Common", "color2"))
+    vector1 = eval(configParser.get("Common", "vector1"))
+    vector2 = eval(configParser.get("Common", "vector2"))
+    training_vector = eval(configParser.get("Common", "training_vector"))
+
+    # Do some processing
+    color1 = np.array(color1)
+    color2 = np.array(color2)
+    vector1 = np.array(vector1)
+    vector2 = np.array(vector2)
+
+    colors = [color1, color2]
+    vectors = [vector1, vector2]
+
+    return locals()
+
+
 def make_base_sphere(seed=None):
     mlab.figure(
-        figure=None, fgcolor=None, engine=None, size=(400, 350))
+        figure=None, fgcolor=None, engine=None, size=(300, 350))
 
     cap = threed.make_cap(
         r=radius, cap_angle=np.pi, direction=np.array([0, 0, 1]),
@@ -89,12 +114,13 @@ def draw_encoders(encoders, angle=None, colors=None):
 
 
 def draw_vector(vector, color):
-    v = (0.0, 0.0, 0.0) + tuple(vector)
-    v = np.array(v)
+    mesh = draw_star(vector, color, alpha=0.8, freq=5.0)
+    return mesh
 
-    v = mlab.pipeline.vectors(mlab.pipeline.vector_scatter(*v), color=color)
 
-    return v
+def draw_testing_vector(vector, color):
+    mesh = draw_star(vector, color, alpha=0.8, freq=10.0)
+    return mesh
 
 
 def draw_cap(vector, color, cap_angle, alpha=0.8, func=None):
@@ -106,7 +132,8 @@ def draw_cap(vector, color, cap_angle, alpha=0.8, func=None):
     return mesh
 
 
-def draw_star(vector, color, cap_angle=np.pi/32, freq=10, amplitude=0.3, alpha=0.8):
+def draw_star(vector, color, cap_angle=np.pi/32,
+              freq=10, amplitude=0.3, alpha=0.8):
 
     func = lambda x: 1 + amplitude * np.sin(freq * x)
 
