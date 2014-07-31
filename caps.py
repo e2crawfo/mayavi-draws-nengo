@@ -20,7 +20,7 @@ def make_base_sphere(seed=None):
         r=radius, cap_angle=np.pi, direction=np.array([0, 0, 1]),
         usteps=50, vsteps=50)
 
-    mlab.mesh(*cap, representation='points', color=white)
+    mlab.mesh(*cap, representation='surface', color=white)
 
     engine = mlab.get_engine()
 
@@ -71,16 +71,16 @@ def draw_encoders(encoders, angle=None, colors=None):
     if isinstance(encoders, int):
         encoders = dists.UniformHypersphere(3, surface=True).sample(encoders)
 
+    if colors is None:
+        colors = [black for e in encoders]
+
     if not angle:
         angle = 0.01 * np.pi
 
     for enc, color in zip(encoders, colors):
-        if colors is None:
-            front = white
-        else:
-            front = color
+        front = color
+        back = black
 
-            back = black
         cap = threed.make_cap(r=1.01*radius, cap_angle=angle, direction=enc)
         mlab.mesh(*cap, color=front, opacity=1.0)
 
